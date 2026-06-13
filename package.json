@@ -12,13 +12,15 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "db:push": "drizzle-kit push",
-    "db:sql": "tsx --env-file=.env scripts/run-sql/run-sql.ts"
+    "db:sql": "tsx --env-file=.env scripts/run-sql/run-sql.ts",
+    "db:seed": "tsx --env-file=.env scripts/seed.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
