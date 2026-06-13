@@ -4,6 +4,14 @@ alter table products           enable row level security;
 alter table promotions         enable row level security;
 alter table tenant_memberships enable row level security;
 
+-- Grant table-level permissions to the authenticated role.
+-- RLS policies control which rows are visible/writable — but Postgres still
+-- requires an explicit GRANT for the role to touch the table at all.
+grant select, insert, update, delete on categories         to authenticated;
+grant select, insert, update, delete on products           to authenticated;
+grant select, insert, update, delete on promotions         to authenticated;
+grant select, insert, update, delete on tenant_memberships to authenticated;
+
 -- Helper: checks that the current user has an active membership in the current tenant.
 -- Extracted as a function to avoid repeating the subquery in every policy.
 create or replace function current_user_is_tenant_member(p_tenant_id uuid)

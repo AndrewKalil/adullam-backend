@@ -1,10 +1,13 @@
 import express from "express";
+
+import { categoriesRouter } from "~modules";
+
 import {
   errorHandler,
   resolveTenant,
   authenticate,
   verifyMembership,
-} from "./middleware";
+} from "~middleware";
 
 export const app = express();
 
@@ -22,8 +25,7 @@ api.use(resolveTenant);
 api.use(authenticate);
 api.use(verifyMembership);
 
-// TODO: mount route modules here in later tickets
-// api.use("/categories", categoriesRouter);
+api.use("/categories", categoriesRouter);
 
 app.use("/api/v1", api);
 
