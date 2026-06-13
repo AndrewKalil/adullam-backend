@@ -5,7 +5,6 @@
     "lib": ["ES2022"],
     "outDir": "dist",
     "types": ["node"],
-    "rootDir": "src",
     "paths": {
       "~config": ["./src/config"],
       "~config/*": ["./src/config/*"],
@@ -31,6 +30,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "scripts"],
   "exclude": ["node_modules", "dist"]
 }
