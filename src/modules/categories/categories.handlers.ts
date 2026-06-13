@@ -3,9 +3,12 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { categories, withTenant } from "~db";
 import { AppError } from "~types";
-import { buildCtx, softDelete } from "~utils";
+import { softDelete } from "~utils";
 
-import type { CreateCategoryInput, UpdateCategoryInput } from "./categories.types";
+import type {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from "./categories.types";
 
 export const listCategories = async (
   req: Request,
@@ -13,7 +16,7 @@ export const listCategories = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const rows = await withTenant(buildCtx(req), (tx) =>
+    const rows = await withTenant(req, (tx) =>
       tx
         .select()
         .from(categories)
@@ -33,7 +36,7 @@ export const getCategoryById = async (
 ): Promise<void> => {
   try {
     const id = req.params["id"] as string;
-    const [row] = await withTenant(buildCtx(req), (tx) =>
+    const [row] = await withTenant(req, (tx) =>
       tx
         .select()
         .from(categories)
@@ -56,7 +59,7 @@ export const createCategory = async (
   try {
     const body = req.body as CreateCategoryInput;
 
-    const [row] = await withTenant(buildCtx(req), (tx) =>
+    const [row] = await withTenant(req, (tx) =>
       tx
         .insert(categories)
         .values({ ...body, tenantId: req.tenantId })
@@ -78,7 +81,7 @@ export const updateCategory = async (
     const id = req.params["id"] as string;
     const { updatedAt, ...fields } = req.body as UpdateCategoryInput;
 
-    await withTenant(buildCtx(req), async (tx) => {
+    await withTenant(req, async (tx) => {
       const [current] = await tx
         .select({ updatedAt: categories.updatedAt })
         .from(categories)
@@ -88,7 +91,10 @@ export const updateCategory = async (
       if (!current) throw new AppError(404, "Category not found");
 
       if (new Date(current.updatedAt) > new Date(updatedAt)) {
-        throw new AppError(409, "Category was modified by another user. Please reload and try again.");
+        throw new AppError(
+          409,
+          "Category was modified by another user. Please reload and try again.",
+        );
       }
 
       const [updated] = await tx
@@ -112,7 +118,7 @@ export const deleteCategory = async (
   try {
     const id = req.params["id"] as string;
 
-    await withTenant(buildCtx(req), async (tx) => {
+    await withTenant(req, async (tx) => {
       const [current] = await tx
         .select({ id: categories.id })
         .from(categories)

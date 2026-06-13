@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
+import type { Request } from "express";
 
 import { adminDb, db } from "../../client";
-import type { TenantCtx, TxClient } from "./withTenant.types";
+import type { TxClient } from "./withTenant.types";
 
 /**
  * The only door to the database for request handlers.
@@ -14,16 +15,16 @@ import type { TenantCtx, TxClient } from "./withTenant.types";
  * when the transaction ends, so one request cannot bleed into another.
  */
 export const withTenant = async <T>(
-  ctx: TenantCtx,
+  req: Request,
   fn: (tx: TxClient) => Promise<T>,
 ): Promise<T> => {
   return db.transaction(async (tx) => {
     await tx.execute(sql`select set_config('role', 'authenticated', true)`);
     await tx.execute(
-      sql`select set_config('request.jwt.claims', ${JSON.stringify(ctx.claims)}, true)`,
+      sql`select set_config('request.jwt.claims', ${JSON.stringify(req.claims)}, true)`,
     );
     await tx.execute(
-      sql`select set_config('app.current_tenant', ${ctx.tenantId}, true)`,
+      sql`select set_config('app.current_tenant', ${req.tenantId}, true)`,
     );
     return fn(tx);
   });

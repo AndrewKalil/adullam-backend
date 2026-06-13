@@ -11,6 +11,7 @@ grant select, insert, update, delete on categories         to authenticated;
 grant select, insert, update, delete on products           to authenticated;
 grant select, insert, update, delete on promotions         to authenticated;
 grant select, insert, update, delete on tenant_memberships to authenticated;
+grant insert                          on logs               to authenticated;
 
 -- Helper: checks that the current user has an active membership in the current tenant.
 -- Extracted as a function to avoid repeating the subquery in every policy.
