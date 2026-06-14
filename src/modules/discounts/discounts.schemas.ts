@@ -38,5 +38,4 @@ export const updateDiscountSchema = object({
   startDate: string().nullable().optional(),
   endDate: string().nullable().optional(),
   isActive: boolean().optional(),
-  updatedAt: string().required("updatedAt must be an ISO datetime string"),
 });

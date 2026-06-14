@@ -20,5 +20,4 @@ export const updatePromoCodeSchema = object({
   maxUses: number().integer().positive().nullable().optional(),
   expiresAt: string().nullable().optional(),
   isActive: boolean().optional(),
-  updatedAt: string().required("updatedAt must be an ISO datetime string"),
 });

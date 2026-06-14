@@ -10,5 +10,4 @@ export const updateCategorySchema = object({
   name: string().min(1).max(100).optional(),
   description: string().max(500).optional(),
   color: string().matches(/^#[0-9a-fA-F]{6}$/).optional(),
-  updatedAt: string().required("updatedAt must be an ISO datetime string"),
 });

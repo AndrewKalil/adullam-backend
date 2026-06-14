@@ -108,7 +108,7 @@ export const updateDiscount = async (
 ): Promise<void> => {
   try {
     const id = req.params["id"] as string;
-    const { updatedAt, productIds, startDate, endDate, percentage, ...rest } =
+    const { productIds, startDate, endDate, percentage, ...rest } =
       req.body as UpdateDiscountInput;
 
     const payload = {
@@ -119,26 +119,13 @@ export const updateDiscount = async (
     };
 
     const result = await withTenant(req, async (tx) => {
-      const [current] = await tx
-        .select({ updatedAt: discounts.updatedAt })
-        .from(discounts)
-        .where(and(eq(discounts.id, id), isNull(discounts.deletedAt)))
-        .limit(1);
-
-      if (!current) throw new AppError(404, "Discount not found");
-
-      if (new Date(current.updatedAt) > new Date(updatedAt)) {
-        throw new AppError(
-          409,
-          "Discount was modified by another user. Please reload and try again.",
-        );
-      }
-
       const [updated] = await tx
         .update(discounts)
         .set(payload)
-        .where(eq(discounts.id, id))
+        .where(and(eq(discounts.id, id), isNull(discounts.deletedAt)))
         .returning();
+
+      if (!updated) throw new AppError(404, "Discount not found");
 
       if (productIds !== undefined) {
         await tx.delete(discountProducts).where(eq(discountProducts.discountId, id));

@@ -167,32 +167,18 @@ export const updateProduct = async (
 ): Promise<void> => {
   try {
     const id = req.params["id"] as string;
-    const { updatedAt, ...fields } = req.body as UpdateProductInput;
+    const fields = req.body as UpdateProductInput;
 
-    await withTenant(req, async (tx) => {
-      const [current] = await tx
-        .select({ updatedAt: products.updatedAt })
-        .from(products)
-        .where(and(eq(products.id, id), isNull(products.deletedAt)))
-        .limit(1);
-
-      if (!current) throw new AppError(404, "Product not found");
-
-      if (new Date(current.updatedAt) > new Date(updatedAt)) {
-        throw new AppError(
-          409,
-          "Product was modified by another user. Please reload and try again.",
-        );
-      }
-
-      const [updated] = await tx
+    const [updated] = await withTenant(req, (tx) =>
+      tx
         .update(products)
         .set(fields)
-        .where(eq(products.id, id))
-        .returning();
+        .where(and(eq(products.id, id), isNull(products.deletedAt)))
+        .returning(),
+    );
 
-      res.json(updated);
-    });
+    if (!updated) throw new AppError(404, "Product not found");
+    res.json(updated);
   } catch (err) {
     next(err);
   }

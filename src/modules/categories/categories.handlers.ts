@@ -79,32 +79,18 @@ export const updateCategory = async (
 ): Promise<void> => {
   try {
     const id = req.params["id"] as string;
-    const { updatedAt, ...fields } = req.body as UpdateCategoryInput;
+    const fields = req.body as UpdateCategoryInput;
 
-    await withTenant(req, async (tx) => {
-      const [current] = await tx
-        .select({ updatedAt: categories.updatedAt })
-        .from(categories)
-        .where(and(eq(categories.id, id), isNull(categories.deletedAt)))
-        .limit(1);
-
-      if (!current) throw new AppError(404, "Category not found");
-
-      if (new Date(current.updatedAt) > new Date(updatedAt)) {
-        throw new AppError(
-          409,
-          "Category was modified by another user. Please reload and try again.",
-        );
-      }
-
-      const [updated] = await tx
+    const [updated] = await withTenant(req, (tx) =>
+      tx
         .update(categories)
         .set(fields)
-        .where(eq(categories.id, id))
-        .returning();
+        .where(and(eq(categories.id, id), isNull(categories.deletedAt)))
+        .returning(),
+    );
 
-      res.json(updated);
-    });
+    if (!updated) throw new AppError(404, "Category not found");
+    res.json(updated);
   } catch (err) {
     next(err);
   }

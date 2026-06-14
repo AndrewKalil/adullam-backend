@@ -25,7 +25,6 @@ export const updateProductSchema = object({
     .optional(),
   imageUrl: string().url().nullable().optional(),
   isAvailable: boolean().optional(),
-  updatedAt: string().required("updatedAt must be an ISO datetime string"),
 });
 
 export const listProductsSchema = object({

@@ -2,20 +2,60 @@
   "info": {
     "name": "Adullam Backend",
     "_postman_id": "adullam-backend-collection",
-    "description": "Multi-tenant backend API.\n\n**Setup:**\n1. Set `supabaseAnonKey` in collection variables to your local anon key (`npx supabase status`).\n2. Run **Auth / Get Token** — it auto-sets `token`.\n3. All API requests use `{{token}}` and `x-tenant-slug: {{tenantSlug}}`.\n\nCreate/list requests auto-capture IDs into `categoryId`, `productId`, `discountId`, `promoCodeId` via test scripts.",
+    "description": "Multi-tenant backend API.\n\n**Setup:**\n1. Set `supabaseAnonKey` in collection variables to your local anon key (`npx supabase status`).\n2. Run **Auth / Get Token** \u00e2\u20ac\u201d it auto-sets `token`.\n3. All API requests use `{{token}}` and `x-tenant-slug: {{tenantSlug}}`.\n\nCreate/list requests auto-capture IDs into `categoryId`, `productId`, `discountId`, `promoCodeId` via test scripts.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl",         "value": "http://localhost:8000",      "type": "string" },
-    { "key": "supabaseUrl",     "value": "http://localhost:54321",     "type": "string" },
-    { "key": "supabaseAnonKey", "value": "REPLACE_WITH_ANON_KEY",      "type": "string" },
-    { "key": "token",           "value": "",                           "type": "string" },
-    { "key": "tenantSlug",      "value": "demo",                       "type": "string" },
-    { "key": "categoryId",      "value": "",                           "type": "string" },
-    { "key": "productId",       "value": "",                           "type": "string" },
-    { "key": "discountId",      "value": "",                           "type": "string" },
-    { "key": "promoCodeId",     "value": "",                           "type": "string" },
-    { "key": "userId",          "value": "",                           "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "supabaseUrl",
+      "value": "http://localhost:54321",
+      "type": "string"
+    },
+    {
+      "key": "supabaseAnonKey",
+      "value": "REPLACE_WITH_ANON_KEY",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tenantSlug",
+      "value": "demo",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "discountId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "promoCodeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -43,19 +83,40 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "apikey",       "value": "{{supabaseAnonKey}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "apikey",
+                "value": "{{supabaseAnonKey}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@demo.com\",\n  \"password\": \"password123\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password",
-              "host": ["{{supabaseUrl}}"],
-              "path": ["auth", "v1", "token"],
-              "query": [{ "key": "grant_type", "value": "password" }]
+              "host": [
+                "{{supabaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
             },
             "description": "Signs in with the seeded demo user and auto-sets `token` collection variable."
           }
@@ -72,8 +133,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
             "description": "No auth required. Expected: `{\"status\":\"ok\"}`"
           }
@@ -103,13 +168,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization",  "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug",  "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
             }
           }
         },
@@ -118,13 +195,26 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{categoryId}}"
+              ]
             }
           }
         },
@@ -148,19 +238,38 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Beverages\",\n  \"description\": \"Hot and cold drinks\",\n  \"color\": \"#3B82F6\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
             }
           }
         },
@@ -169,19 +278,39 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Beverages & Drinks\",\n  \"color\": \"#6366F1\",\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"name\": \"Beverages & Drinks\",\n  \"color\": \"#6366F1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{categoryId}}"
+              ]
             },
             "description": "Replace `updatedAt` with the value returned from List or Create."
           }
@@ -191,13 +320,26 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "categories", "{{categoryId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{categoryId}}"
+              ]
             },
             "description": "Soft delete. Expected: 204 No Content."
           }
@@ -227,23 +369,68 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/products?limit=20&offset=0&sort=created_desc",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
               "query": [
-                { "key": "limit",        "value": "20" },
-                { "key": "offset",       "value": "0" },
-                { "key": "sort",         "value": "created_desc" },
-                { "key": "category_id",  "value": "", "disabled": true },
-                { "key": "name",         "value": "", "disabled": true },
-                { "key": "price_min",    "value": "", "disabled": true },
-                { "key": "price_max",    "value": "", "disabled": true },
-                { "key": "created_from", "value": "", "disabled": true },
-                { "key": "created_to",   "value": "", "disabled": true }
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_desc"
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "name",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "price_min",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "price_max",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "created_from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "created_to",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             },
             "description": "Each product includes a `discount` field (`{ id, name, percentage }` or `null`) showing the highest applicable discount. Enable and fill any query param to filter. `sort` options: `name_asc`, `name_desc`, `price_asc`, `price_desc`, `created_asc`, `created_desc`."
@@ -254,13 +441,26 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "products", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{productId}}"
+              ]
             },
             "description": "Response includes `category` and `discount` (`{ id, name, percentage }` or `null`)."
           }
@@ -285,19 +485,38 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Espresso\",\n  \"description\": \"Strong single shot espresso\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"price\": \"3.50\",\n  \"isAvailable\": true\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
             },
             "description": "Price must be a decimal string (e.g. `\"3.50\"`). `categoryId` is optional."
           }
@@ -307,19 +526,39 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Double Espresso\",\n  \"price\": \"4.50\",\n  \"isAvailable\": true,\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"name\": \"Double Espresso\",\n  \"price\": \"4.50\",\n  \"isAvailable\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "products", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{productId}}"
+              ]
             },
             "description": "All fields optional except `updatedAt` (optimistic concurrency). 409 if row was updated since you last read it."
           }
@@ -329,13 +568,26 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "products", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{productId}}"
+              ]
             },
             "description": "Soft delete. Expected: 204 No Content."
           }
@@ -365,13 +617,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/discounts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "discounts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "discounts"
+              ]
             }
           }
         },
@@ -380,19 +644,32 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/discounts/{{discountId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "discounts", "{{discountId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "discounts",
+                "{{discountId}}"
+              ]
             },
             "description": "For `scope=products`, response includes a `productIds` array."
           }
         },
         {
-          "name": "Create Discount — product scope",
+          "name": "Create Discount \u00e2\u20ac\u201d product scope",
           "event": [
             {
               "listen": "test",
@@ -411,41 +688,79 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"10% Off Espresso\",\n  \"description\": \"Discount on espresso products\",\n  \"percentage\": 10,\n  \"scope\": \"products\",\n  \"productIds\": [\"{{productId}}\"],\n  \"isActive\": true,\n  \"startDate\": \"2026-06-13T00:00:00Z\",\n  \"endDate\": \"2026-07-01T23:59:59Z\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/discounts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "discounts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "discounts"
+              ]
             },
             "description": "Use `scope: \"products\"` with a `productIds` array to target specific products."
           }
         },
         {
-          "name": "Create Discount — category scope",
+          "name": "Create Discount \u00e2\u20ac\u201d category scope",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"20% Off Beverages\",\n  \"description\": \"Discount on all beverages\",\n  \"percentage\": 20,\n  \"scope\": \"category\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"isActive\": true\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/discounts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "discounts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "discounts"
+              ]
             },
             "description": "Use `scope: \"category\"` with a `categoryId` to apply discount to all products in that category."
           }
@@ -455,19 +770,39 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"15% Off Espresso\",\n  \"percentage\": 15,\n  \"productIds\": [\"{{productId}}\"],\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"name\": \"15% Off Espresso\",\n  \"percentage\": 15,\n  \"productIds\": [\n    \"{{productId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/discounts/{{discountId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "discounts", "{{discountId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "discounts",
+                "{{discountId}}"
+              ]
             },
             "description": "All fields optional except `updatedAt`. If `productIds` is provided it fully replaces the current set. 409 if row was modified concurrently."
           }
@@ -477,13 +812,26 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/discounts/{{discountId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "discounts", "{{discountId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "discounts",
+                "{{discountId}}"
+              ]
             },
             "description": "Soft-deletes the discount and hard-deletes related discount_products rows. Expected: 204 No Content."
           }
@@ -513,13 +861,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/promo-codes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promo-codes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promo-codes"
+              ]
             }
           }
         },
@@ -528,13 +888,26 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/promo-codes/{{promoCodeId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promo-codes", "{{promoCodeId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promo-codes",
+                "{{promoCodeId}}"
+              ]
             }
           }
         },
@@ -558,19 +931,38 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"code\": \"SAVE10\",\n  \"discountType\": \"percentage\",\n  \"discountValue\": 10,\n  \"minOrderAmount\": 20,\n  \"maxUses\": 100,\n  \"isActive\": true,\n  \"expiresAt\": \"2026-12-31T23:59:59Z\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/promo-codes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promo-codes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promo-codes"
+              ]
             },
             "description": "`code` is auto-uppercased. `discountType`: `percentage` or `fixed`. Duplicate codes per tenant are rejected by a DB unique constraint."
           }
@@ -580,19 +972,39 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"isActive\": false,\n  \"maxUses\": 50,\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"isActive\": false,\n  \"maxUses\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/promo-codes/{{promoCodeId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promo-codes", "{{promoCodeId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promo-codes",
+                "{{promoCodeId}}"
+              ]
             },
             "description": "All fields optional except `updatedAt`. 409 if row was modified concurrently."
           }
@@ -602,13 +1014,26 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/promo-codes/{{promoCodeId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promo-codes", "{{promoCodeId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promo-codes",
+                "{{promoCodeId}}"
+              ]
             },
             "description": "Soft delete. Expected: 204 No Content."
           }
@@ -638,13 +1063,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
             },
             "description": "Lists users that are members of the current tenant."
           }
@@ -654,13 +1091,26 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{userId}}"
+              ]
             }
           }
         },
@@ -684,19 +1134,38 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"newuser@demo.com\",\n  \"password\": \"password123\",\n  \"role\": \"editor\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
             },
             "description": "Creates a Supabase auth user and mirrors them into `public.users`, then adds a tenant membership with the given `role` (`owner` or `editor`)."
           }
@@ -706,19 +1175,39 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"owner\",\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{userId}}"
+              ]
             },
             "description": "Updates the user's membership role within the current tenant."
           }
@@ -728,13 +1217,26 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users", "{{userId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{userId}}"
+              ]
             },
             "description": "Soft-deletes the user's membership in the current tenant. Expected: 204 No Content."
           }
@@ -749,19 +1251,39 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"fileName\": \"espresso.jpg\",\n  \"contentType\": \"image/jpeg\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/uploads/sign",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "uploads", "sign"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "uploads",
+                "sign"
+              ]
             },
             "description": "Returns `{ signedUrl, path, token, publicUrl }`. Upload the file directly to `signedUrl` via PUT, then pass `publicUrl` as `imageUrl` in Create/Update product or discount."
           }

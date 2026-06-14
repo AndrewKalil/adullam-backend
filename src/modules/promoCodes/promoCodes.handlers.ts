@@ -83,7 +83,7 @@ export const updatePromoCode = async (
 ): Promise<void> => {
   try {
     const id = req.params["id"] as string;
-    const { updatedAt, expiresAt, discountValue, minOrderAmount, ...rest } =
+    const { expiresAt, discountValue, minOrderAmount, ...rest } =
       req.body as UpdatePromoCodeInput;
 
     const payload = {
@@ -95,30 +95,16 @@ export const updatePromoCode = async (
       ...(expiresAt !== undefined && { expiresAt: expiresAt ? new Date(expiresAt) : null }),
     };
 
-    await withTenant(req, async (tx) => {
-      const [current] = await tx
-        .select({ updatedAt: promoCodes.updatedAt })
-        .from(promoCodes)
-        .where(and(eq(promoCodes.id, id), isNull(promoCodes.deletedAt)))
-        .limit(1);
-
-      if (!current) throw new AppError(404, "Promo code not found");
-
-      if (new Date(current.updatedAt) > new Date(updatedAt)) {
-        throw new AppError(
-          409,
-          "Promo code was modified by another user. Please reload and try again.",
-        );
-      }
-
-      const [updated] = await tx
+    const [updated] = await withTenant(req, (tx) =>
+      tx
         .update(promoCodes)
         .set(payload)
-        .where(eq(promoCodes.id, id))
-        .returning();
+        .where(and(eq(promoCodes.id, id), isNull(promoCodes.deletedAt)))
+        .returning(),
+    );
 
-      res.json(updated);
-    });
+    if (!updated) throw new AppError(404, "Promo code not found");
+    res.json(updated);
   } catch (err) {
     next(err);
   }
