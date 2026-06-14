@@ -2,6 +2,7 @@ import {
   boolean,
   date,
   index,
+  integer,
   jsonb,
   numeric,
   pgTable,
@@ -101,8 +102,8 @@ export const products = pgTable(
   ],
 );
 
-export const promotions = pgTable(
-  "promotions",
+export const discounts = pgTable(
+  "discounts",
   {
     ...baseColumns,
     tenantId: uuid("tenant_id")
@@ -110,17 +111,62 @@ export const promotions = pgTable(
       .references(() => tenants.id),
     name: text("name").notNull(),
     description: text("description"),
-    type: text("type", {
-      enum: ["bogo", "item-discount", "total-discount"],
-    }).notNull(),
-    metadata: jsonb("metadata").notNull(),
     imageUrl: text("image_url"),
+    percentage: numeric("percentage", { precision: 5, scale: 2 }).notNull(),
+    scope: text("scope", { enum: ["products", "category"] }).notNull(),
+    categoryId: uuid("category_id").references(() => categories.id),
     startDate: timestamp("start_date", { withTimezone: true }),
     endDate: timestamp("end_date", { withTimezone: true }),
     isActive: boolean("is_active").notNull().default(true),
   },
   (t) => [
-    index("idx_promotions_tenant").on(t.tenantId),
+    index("idx_discounts_tenant").on(t.tenantId),
+    index("idx_discounts_category").on(t.categoryId),
+  ],
+);
+
+export const discountProducts = pgTable(
+  "discount_products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id),
+    discountId: uuid("discount_id")
+      .notNull()
+      .references(() => discounts.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
+  },
+  (t) => [
+    index("idx_discount_products_discount").on(t.discountId),
+    index("idx_discount_products_product").on(t.productId),
+    uniqueIndex("uniq_discount_product").on(t.discountId, t.productId),
+  ],
+);
+
+export const promoCodes = pgTable(
+  "promo_codes",
+  {
+    ...baseColumns,
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id),
+    code: text("code").notNull(),
+    discountType: text("discount_type", { enum: ["percentage", "fixed"] }).notNull(),
+    discountValue: numeric("discount_value", { precision: 12, scale: 2 }).notNull(),
+    minOrderAmount: numeric("min_order_amount", { precision: 12, scale: 2 }),
+    maxUses: integer("max_uses"),
+    useCount: integer("use_count").notNull().default(0),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    isActive: boolean("is_active").notNull().default(true),
+  },
+  (t) => [
+    index("idx_promo_codes_tenant").on(t.tenantId),
+    uniqueIndex("uniq_code_per_tenant")
+      .on(t.tenantId, t.code)
+      .where(sql`${t.deletedAt} IS NULL`),
   ],
 );
 

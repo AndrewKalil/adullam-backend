@@ -30,6 +30,10 @@ create or replace trigger trg_products_updated_at
   before update on products
   for each row execute function set_updated_at();
 
-create or replace trigger trg_promotions_updated_at
-  before update on promotions
+create or replace trigger trg_discounts_updated_at
+  before update on discounts
+  for each row execute function set_updated_at();
+
+create or replace trigger trg_promo_codes_updated_at
+  before update on promo_codes
   for each row execute function set_updated_at();

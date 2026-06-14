@@ -59,6 +59,10 @@ create or replace trigger trg_products_audit
   after insert or update or delete on products
   for each row execute function audit_log();
 
-create or replace trigger trg_promotions_audit
-  after insert or update or delete on promotions
+create or replace trigger trg_discounts_audit
+  after insert or update or delete on discounts
+  for each row execute function audit_log();
+
+create or replace trigger trg_promo_codes_audit
+  after insert or update or delete on promo_codes
   for each row execute function audit_log();
