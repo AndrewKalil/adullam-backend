@@ -1,70 +1,208 @@
 import { supabaseAdmin } from "../src/integrations/supabase";
 import { asAdmin } from "../src/db";
-import { tenants, users, tenantMemberships } from "../src/db/schema";
+import {
+  categories,
+  discounts,
+  products,
+  tenantMemberships,
+  tenants,
+  users,
+} from "../src/db/schema";
 
-const seed = async () => {
-  console.log("Seeding minimal data...");
+interface SeedTenant {
+  name: string;
+  slug: string;
+  timezone: string;
+  currency: string;
+}
 
-  await asAdmin(async (tx) => {
-    // 1. Create tenant
-    const [tenant] = await tx
-      .insert(tenants)
-      .values({
-        name: "Demo Store",
-        slug: "demo",
-        timezone: "America/New_York",
-        currency: "USD",
-      })
-      .onConflictDoNothing()
-      .returning();
+interface SeedUser {
+  email: string;
+  password: string;
+}
 
-    if (!tenant) {
-      console.log("Tenant 'demo' already exists, skipping.");
-      return;
-    }
+interface SeedData {
+  tenant: SeedTenant;
+  owner: SeedUser;
+}
 
-    console.log("Created tenant:", tenant.id);
+const SEED_DATA: SeedData[] = [
+  {
+    tenant: {
+      name: "Demo Store",
+      slug: "demo",
+      timezone: "America/New_York",
+      currency: "USD",
+    },
+    owner: { email: "admin@demo.com", password: "password123" },
+  },
+  {
+    tenant: {
+      name: "Letty's Paradise",
+      slug: "lettys",
+      timezone: "America/Chicago",
+      currency: "USD",
+    },
+    owner: { email: "letty@paradise.com", password: "password123" },
+  },
+];
 
-    // 2. Create Auth user via Supabase Admin API
-    const { data: authData, error: authError } =
-      await supabaseAdmin.auth.admin.createUser({
-        email: "admin@demo.com",
-        password: "password123",
-        email_confirm: true,
-      });
-
-    if (authError)
-      throw new Error(`Auth user creation failed: ${authError.message}`);
-    const authUser = authData.user;
-    console.log("Created auth user:", authUser.id);
-
-    // 3. Mirror user in public.users
-    await tx
-      .insert(users)
-      .values({
-        id: authUser.id,
-        email: authUser.email!,
-      })
-      .onConflictDoNothing();
-
-    // 4. Create membership
-    await tx
-      .insert(tenantMemberships)
-      .values({
-        tenantId: tenant.id,
-        userId: authUser.id,
-        role: "owner",
-      })
-      .onConflictDoNothing();
-
-    console.log("Created membership.");
+const createAuthUser = async (email: string, password: string) => {
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
   });
 
-  console.log("Seed complete.");
-  console.log("Login: email=admin@demo.com  password=password123");
-  console.log(
-    "Tenant slug: demo  (use x-tenant-slug: demo header in local requests)",
+  if (error) {
+    if (error.message.includes("already registered")) {
+      const { data: list } = await supabaseAdmin.auth.admin.listUsers();
+      const existing = list?.users.find((u) => u.email === email);
+      if (existing) return existing;
+    }
+    throw new Error(`Auth error for ${email}: ${error.message}`);
+  }
+
+  return data.user;
+};
+
+const seed = async () => {
+  console.log("Seeding database...\n");
+
+  const { error: bucketError } = await supabaseAdmin.storage.createBucket(
+    "adullam-media",
+    { public: true },
   );
+  if (bucketError && !bucketError.message.includes("already exists")) {
+    console.warn("Bucket warning:", bucketError.message);
+  } else {
+    console.log("Storage bucket ready.");
+  }
+
+  for (const { tenant: tenantData, owner } of SEED_DATA) {
+    console.log(`\n--- Seeding tenant: ${tenantData.slug} ---`);
+
+    await asAdmin(async (tx) => {
+      const [tenant] = await tx
+        .insert(tenants)
+        .values(tenantData)
+        .onConflictDoNothing()
+        .returning();
+
+      if (!tenant) {
+        console.log(`Tenant '${tenantData.slug}' already exists, skipping.`);
+        return;
+      }
+      console.log(`Created tenant: ${tenant.id}`);
+
+      const authUser = await createAuthUser(owner.email, owner.password);
+      console.log(`Auth user: ${authUser.id} (${owner.email})`);
+
+      await tx
+        .insert(users)
+        .values({ id: authUser.id, email: authUser.email! })
+        .onConflictDoNothing();
+
+      await tx
+        .insert(tenantMemberships)
+        .values({ tenantId: tenant.id, userId: authUser.id, role: "owner" })
+        .onConflictDoNothing();
+
+      const [catDrinks, catFood, catSnacks] = await tx
+        .insert(categories)
+        .values([
+          { tenantId: tenant.id, name: "Drinks", color: "#3B82F6" },
+          { tenantId: tenant.id, name: "Food", color: "#10B981" },
+          { tenantId: tenant.id, name: "Snacks", color: "#F59E0B" },
+        ])
+        .onConflictDoNothing()
+        .returning();
+
+      console.log("Created 3 categories.");
+
+      await tx
+        .insert(products)
+        .values([
+          {
+            tenantId: tenant.id,
+            categoryId: catDrinks?.id,
+            name: "Orange Juice",
+            price: "3.50",
+            isAvailable: true,
+          },
+          {
+            tenantId: tenant.id,
+            categoryId: catDrinks?.id,
+            name: "Sparkling Water",
+            price: "2.00",
+            isAvailable: true,
+          },
+          {
+            tenantId: tenant.id,
+            categoryId: catFood?.id,
+            name: "Burger",
+            price: "12.99",
+            isAvailable: true,
+          },
+          {
+            tenantId: tenant.id,
+            categoryId: catFood?.id,
+            name: "Caesar Salad",
+            price: "10.50",
+            isAvailable: true,
+          },
+          {
+            tenantId: tenant.id,
+            categoryId: catSnacks?.id,
+            name: "Mixed Nuts",
+            price: "5.00",
+            isAvailable: true,
+          },
+          {
+            tenantId: tenant.id,
+            categoryId: catSnacks?.id,
+            name: "Chips",
+            price: "2.50",
+            isAvailable: false,
+          },
+        ])
+        .onConflictDoNothing();
+
+      console.log("Created 6 products.");
+
+      await tx
+        .insert(discounts)
+        .values([
+          {
+            tenantId: tenant.id,
+            name: "Drinks Happy Hour",
+            percentage: "20.00",
+            scope: "category",
+            categoryId: catDrinks?.id,
+            isActive: true,
+          },
+          {
+            tenantId: tenant.id,
+            name: "Snacks Weekend Deal",
+            percentage: "15.00",
+            scope: "category",
+            categoryId: catSnacks?.id,
+            startDate: new Date("2026-06-01"),
+            endDate: new Date("2026-08-31"),
+            isActive: true,
+          },
+        ])
+        .onConflictDoNothing();
+
+      console.log("Created 2 discounts.");
+    });
+  }
+
+  console.log("\n=== Seed complete ===");
+  console.log("Tenants:");
+  for (const { tenant, owner } of SEED_DATA) {
+    console.log(`  ${tenant.slug}: ${owner.email} / password123`);
+  }
 };
 
 seed().catch((err) => {
