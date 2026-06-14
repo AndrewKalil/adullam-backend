@@ -2,7 +2,7 @@
   "info": {
     "name": "Adullam Backend",
     "_postman_id": "adullam-backend-collection",
-    "description": "Multi-tenant backend API.\n\n**Setup:**\n1. Set `supabaseAnonKey` in collection variables to your local anon key (`npx supabase status`).\n2. Run **Auth / Get Token** — it auto-sets `token`.\n3. All API requests use `{{token}}` and `x-tenant-slug: {{tenantSlug}}`.\n\nCreate/list requests auto-capture IDs into `categoryId`, `productId`, `promotionId` via test scripts.",
+    "description": "Multi-tenant backend API.\n\n**Setup:**\n1. Set `supabaseAnonKey` in collection variables to your local anon key (`npx supabase status`).\n2. Run **Auth / Get Token** — it auto-sets `token`.\n3. All API requests use `{{token}}` and `x-tenant-slug: {{tenantSlug}}`.\n\nCreate/list requests auto-capture IDs into `categoryId`, `productId`, `discountId`, `promoCodeId` via test scripts.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -13,7 +13,8 @@
     { "key": "tenantSlug",      "value": "demo",                       "type": "string" },
     { "key": "categoryId",      "value": "",                           "type": "string" },
     { "key": "productId",       "value": "",                           "type": "string" },
-    { "key": "promotionId",     "value": "",                           "type": "string" },
+    { "key": "discountId",      "value": "",                           "type": "string" },
+    { "key": "promoCodeId",     "value": "",                           "type": "string" },
     { "key": "userId",          "value": "",                           "type": "string" }
   ],
   "item": [
@@ -109,6 +110,21 @@
               "raw": "{{baseUrl}}/api/v1/categories",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
             }
           }
         },
@@ -230,7 +246,23 @@
                 { "key": "created_to",   "value": "", "disabled": true }
               ]
             },
-            "description": "Enable and fill any query param to filter. `sort` options: `name_asc`, `name_desc`, `price_asc`, `price_desc`, `created_asc`, `created_desc`."
+            "description": "Each product includes a `discount` field (`{ id, name, percentage }` or `null`) showing the highest applicable discount. Enable and fill any query param to filter. `sort` options: `name_asc`, `name_desc`, `price_asc`, `price_desc`, `created_asc`, `created_desc`."
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Response includes `category` and `discount` (`{ id, name, percentage }` or `null`)."
           }
         },
         {
@@ -311,10 +343,10 @@
       ]
     },
     {
-      "name": "Promotions",
+      "name": "Discounts",
       "item": [
         {
-          "name": "List Promotions",
+          "name": "List Discounts",
           "event": [
             {
               "listen": "test",
@@ -322,8 +354,8 @@
                 "exec": [
                   "const json = pm.response.json();",
                   "if (Array.isArray(json) && json.length > 0) {",
-                  "    pm.collectionVariables.set('promotionId', json[0].id);",
-                  "    console.log('promotionId set to', json[0].id);",
+                  "    pm.collectionVariables.set('discountId', json[0].id);",
+                  "    console.log('discountId set to', json[0].id);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -337,14 +369,14 @@
               { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions",
+              "raw": "{{baseUrl}}/api/v1/discounts",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions"]
+              "path": ["api", "v1", "discounts"]
             }
           }
         },
         {
-          "name": "Get Promotion by ID",
+          "name": "Get Discount by ID",
           "request": {
             "method": "GET",
             "header": [
@@ -352,14 +384,15 @@
               { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions/{{promotionId}}",
+              "raw": "{{baseUrl}}/api/v1/discounts/{{discountId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions", "{{promotionId}}"]
-            }
+              "path": ["api", "v1", "discounts", "{{discountId}}"]
+            },
+            "description": "For `scope=products`, response includes a `productIds` array."
           }
         },
         {
-          "name": "Create Promotion — bogo",
+          "name": "Create Discount — product scope",
           "event": [
             {
               "listen": "test",
@@ -367,8 +400,8 @@
                 "exec": [
                   "const json = pm.response.json();",
                   "if (json.id) {",
-                  "    pm.collectionVariables.set('promotionId', json.id);",
-                  "    console.log('promotionId set to', json.id);",
+                  "    pm.collectionVariables.set('discountId', json.id);",
+                  "    console.log('discountId set to', json.id);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -384,19 +417,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Buy One Get One 50% Off\",\n  \"description\": \"Buy any espresso, get second at 50% off\",\n  \"type\": \"bogo\",\n  \"metadata\": {\n    \"products\": [\"{{productId}}\"],\n    \"discount\": 50,\n    \"applies_to\": \"same-product\"\n  },\n  \"isActive\": true,\n  \"startDate\": \"2026-06-13T00:00:00Z\",\n  \"endDate\": \"2026-07-01T23:59:59Z\"\n}",
+              "raw": "{\n  \"name\": \"10% Off Espresso\",\n  \"description\": \"Discount on espresso products\",\n  \"percentage\": 10,\n  \"scope\": \"products\",\n  \"productIds\": [\"{{productId}}\"],\n  \"isActive\": true,\n  \"startDate\": \"2026-06-13T00:00:00Z\",\n  \"endDate\": \"2026-07-01T23:59:59Z\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions",
+              "raw": "{{baseUrl}}/api/v1/discounts",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions"]
+              "path": ["api", "v1", "discounts"]
             },
-            "description": "`applies_to` options: `any`, `same-product`, `selected-products`, `category`."
+            "description": "Use `scope: \"products\"` with a `productIds` array to target specific products."
           }
         },
         {
-          "name": "Create Promotion — item-discount",
+          "name": "Create Discount — category scope",
           "request": {
             "method": "POST",
             "header": [
@@ -406,41 +439,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"20% Off All Beverages\",\n  \"type\": \"item-discount\",\n  \"metadata\": {\n    \"is_category\": true,\n    \"categories\": [\"{{categoryId}}\"],\n    \"discount\": 20\n  },\n  \"isActive\": true\n}",
+              "raw": "{\n  \"name\": \"20% Off Beverages\",\n  \"description\": \"Discount on all beverages\",\n  \"percentage\": 20,\n  \"scope\": \"category\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"isActive\": true\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions",
+              "raw": "{{baseUrl}}/api/v1/discounts",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions"]
+              "path": ["api", "v1", "discounts"]
             },
-            "description": "Set `is_category: false` and use `products` array instead of `categories` to target specific products."
+            "description": "Use `scope: \"category\"` with a `categoryId` to apply discount to all products in that category."
           }
         },
         {
-          "name": "Create Promotion — total-discount",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type",  "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"10% Off Everything\",\n  \"description\": \"Use promo code SAVE10\",\n  \"type\": \"total-discount\",\n  \"metadata\": {\n    \"discount\": 10,\n    \"promo_code\": \"SAVE10\"\n  },\n  \"isActive\": true\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions"]
-            },
-            "description": "Set `promo_code` to `null` to apply discount to everyone without a code."
-          }
-        },
-        {
-          "name": "Update Promotion",
+          "name": "Update Discount",
           "request": {
             "method": "PATCH",
             "header": [
@@ -450,18 +461,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Promotion Name\",\n  \"isActive\": false,\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
+              "raw": "{\n  \"name\": \"15% Off Espresso\",\n  \"percentage\": 15,\n  \"productIds\": [\"{{productId}}\"],\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions/{{promotionId}}",
+              "raw": "{{baseUrl}}/api/v1/discounts/{{discountId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions", "{{promotionId}}"]
-            }
+              "path": ["api", "v1", "discounts", "{{discountId}}"]
+            },
+            "description": "All fields optional except `updatedAt`. If `productIds` is provided it fully replaces the current set. 409 if row was modified concurrently."
           }
         },
         {
-          "name": "Delete Promotion",
+          "name": "Delete Discount",
           "request": {
             "method": "DELETE",
             "header": [
@@ -469,9 +481,134 @@
               { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/promotions/{{promotionId}}",
+              "raw": "{{baseUrl}}/api/v1/discounts/{{discountId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "promotions", "{{promotionId}}"]
+              "path": ["api", "v1", "discounts", "{{discountId}}"]
+            },
+            "description": "Soft-deletes the discount and hard-deletes related discount_products rows. Expected: 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promo Codes",
+      "item": [
+        {
+          "name": "List Promo Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (Array.isArray(json) && json.length > 0) {",
+                  "    pm.collectionVariables.set('promoCodeId', json[0].id);",
+                  "    console.log('promoCodeId set to', json[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/promo-codes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "promo-codes"]
+            }
+          }
+        },
+        {
+          "name": "Get Promo Code by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/promo-codes/{{promoCodeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "promo-codes", "{{promoCodeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Promo Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "    pm.collectionVariables.set('promoCodeId', json.id);",
+                  "    console.log('promoCodeId set to', json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SAVE10\",\n  \"discountType\": \"percentage\",\n  \"discountValue\": 10,\n  \"minOrderAmount\": 20,\n  \"maxUses\": 100,\n  \"isActive\": true,\n  \"expiresAt\": \"2026-12-31T23:59:59Z\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/promo-codes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "promo-codes"]
+            },
+            "description": "`code` is auto-uppercased. `discountType`: `percentage` or `fixed`. Duplicate codes per tenant are rejected by a DB unique constraint."
+          }
+        },
+        {
+          "name": "Update Promo Code",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false,\n  \"maxUses\": 50,\n  \"updatedAt\": \"REPLACE_WITH_ROW_UPDATED_AT\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/promo-codes/{{promoCodeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "promo-codes", "{{promoCodeId}}"]
+            },
+            "description": "All fields optional except `updatedAt`. 409 if row was modified concurrently."
+          }
+        },
+        {
+          "name": "Delete Promo Code",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-tenant-slug", "value": "{{tenantSlug}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/promo-codes/{{promoCodeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "promo-codes", "{{promoCodeId}}"]
             },
             "description": "Soft delete. Expected: 204 No Content."
           }
@@ -626,7 +763,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "uploads", "sign"]
             },
-            "description": "Returns `{ signedUrl, path, token, publicUrl }`. Upload the file directly to `signedUrl` via PUT, then pass `publicUrl` as `imageUrl` in Create/Update product or promotion."
+            "description": "Returns `{ signedUrl, path, token, publicUrl }`. Upload the file directly to `signedUrl` via PUT, then pass `publicUrl` as `imageUrl` in Create/Update product or discount."
           }
         }
       ]

@@ -1,8 +1,8 @@
-import { and, count, eq, gte, ilike, isNull, lte } from "drizzle-orm";
+import { and, count, eq, gte, ilike, isNull, lte, sql } from "drizzle-orm";
 import { ValidationError } from "yup";
 import type { NextFunction, Request, Response } from "express";
 
-import { products, withTenant } from "~db";
+import { categories, products, withTenant } from "~db";
 import { AppError } from "~types";
 import { softDelete } from "~utils";
 
@@ -13,6 +13,23 @@ import type {
   ListProductsQuery,
   UpdateProductInput,
 } from "./products.types";
+
+const discountSubquery = sql<{ id: string; name: string; percentage: string } | null>`(
+  SELECT jsonb_build_object('id', d.id, 'name', d.name, 'percentage', d.percentage)
+  FROM discounts d
+  WHERE d.tenant_id = ${products.tenantId}
+    AND d.deleted_at IS NULL
+    AND d.is_active = true
+    AND (
+      (d.scope = 'products' AND EXISTS (
+        SELECT 1 FROM discount_products dp
+        WHERE dp.discount_id = d.id AND dp.product_id = ${products.id}
+      ))
+      OR (d.scope = 'category' AND d.category_id = ${products.categoryId})
+    )
+  ORDER BY d.percentage DESC
+  LIMIT 1
+)`;
 
 export const listProducts = async (
   req: Request,
@@ -55,8 +72,17 @@ export const listProducts = async (
 
       const [rows, [{ count: total }]] = await Promise.all([
         tx
-          .select()
+          .select({
+            product: products,
+            category: {
+              name: categories.name,
+              color: categories.color,
+              description: categories.description,
+            },
+            discount: discountSubquery,
+          })
           .from(products)
+          .leftJoin(categories, eq(products.categoryId, categories.id))
           .where(where)
           .orderBy(buildOrderBy(q.sort))
           .limit(q.limit)
@@ -65,7 +91,11 @@ export const listProducts = async (
       ]);
 
       return {
-        data: rows,
+        data: rows.map(({ product, category, discount }) => ({
+          ...product,
+          category: category ?? null,
+          discount: discount ?? null,
+        })),
         total: Number(total),
         limit: q.limit,
         offset: q.offset,
@@ -87,14 +117,23 @@ export const getProductById = async (
     const id = req.params["id"] as string;
     const [row] = await withTenant(req, (tx) =>
       tx
-        .select()
+        .select({
+          product: products,
+          category: {
+            name: categories.name,
+            color: categories.color,
+            description: categories.description,
+          },
+          discount: discountSubquery,
+        })
         .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
         .where(and(eq(products.id, id), isNull(products.deletedAt)))
         .limit(1),
     );
 
     if (!row) throw new AppError(404, "Product not found");
-    res.json(row);
+    res.json({ ...row.product, category: row.category ?? null, discount: row.discount ?? null });
   } catch (err) {
     next(err);
   }
