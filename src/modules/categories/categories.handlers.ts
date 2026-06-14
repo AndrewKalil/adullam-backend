@@ -1,5 +1,5 @@
-import type { NextFunction, Request, Response } from "express";
 import { and, eq, isNull } from "drizzle-orm";
+import type { NextFunction, Request, Response } from "express";
 
 import { categories, withTenant } from "~db";
 import { AppError } from "~types";
