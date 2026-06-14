@@ -1,6 +1,6 @@
 import express from "express";
 
-import { categoriesRouter, productsRouter } from "~modules";
+import { categoriesRouter, discountsRouter, promoCodesRouter, productsRouter } from "~modules";
 
 import {
   errorHandler,
@@ -29,6 +29,8 @@ app.use("/api/v1", api);
 
 api.use("/categories", categoriesRouter);
 api.use("/products", productsRouter);
+api.use("/discounts", discountsRouter);
+api.use("/promo-codes", promoCodesRouter);
 
 // Global error handler — must be registered LAST
 app.use(errorHandler);
