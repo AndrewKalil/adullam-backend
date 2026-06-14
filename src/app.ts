@@ -1,11 +1,18 @@
 import express from "express";
 
-import { categoriesRouter, discountsRouter, promoCodesRouter, productsRouter, uploadsRouter } from "~modules";
+import {
+  authRouter,
+  categoriesRouter,
+  discountsRouter,
+  promoCodesRouter,
+  productsRouter,
+  uploadsRouter,
+} from "~modules";
 
 import {
+  authenticate,
   errorHandler,
   resolveTenant,
-  authenticate,
   verifyMembership,
 } from "~middleware";
 
@@ -18,8 +25,13 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-// All /api/v1 routes go through the standard pipeline.
-// Route modules from Tickets 04-07 will be mounted here.
+// Auth routes — resolveTenant only; logout is protected at the route level
+const authApi = express.Router();
+authApi.use(resolveTenant);
+authApi.use("/", authRouter);
+app.use("/api/v1/auth", authApi);
+
+// All /api/v1 routes go through the full pipeline
 const api = express.Router();
 api.use(resolveTenant);
 api.use(authenticate);

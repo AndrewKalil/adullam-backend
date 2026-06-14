@@ -2,7 +2,7 @@
   "info": {
     "name": "Adullam Backend",
     "_postman_id": "adullam-backend-collection",
-    "description": "Multi-tenant backend API.\n\n**Setup:**\n1. Set `supabaseAnonKey` in collection variables to your local anon key (`npx supabase status`).\n2. Run **Auth / Get Token** \u00e2\u20ac\u201d it auto-sets `token`.\n3. All API requests use `{{token}}` and `x-tenant-slug: {{tenantSlug}}`.\n\nCreate/list requests auto-capture IDs into `categoryId`, `productId`, `discountId`, `promoCodeId` via test scripts.",
+    "description": "Multi-tenant backend API.\n\n**Setup:**\n1. Run **Auth / Login** — it auto-sets `token` and `refreshToken`.\n2. All API requests use `{{token}}` and `x-tenant-slug: {{tenantSlug}}`.\n3. If `token` expires, run **Auth / Refresh** to rotate both tokens.\n\nCreate/list requests auto-capture IDs into `categoryId`, `productId`, `discountId`, `promoCodeId` via test scripts.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -12,17 +12,12 @@
       "type": "string"
     },
     {
-      "key": "supabaseUrl",
-      "value": "http://localhost:54321",
-      "type": "string"
-    },
-    {
-      "key": "supabaseAnonKey",
-      "value": "REPLACE_WITH_ANON_KEY",
-      "type": "string"
-    },
-    {
       "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
       "value": "",
       "type": "string"
     },
@@ -62,18 +57,19 @@
       "name": "Auth",
       "item": [
         {
-          "name": "Get Token",
+          "name": "Login",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.access_token) {",
-                  "    pm.collectionVariables.set('token', json.access_token);",
-                  "    console.log('Token set successfully');",
+                  "if (json.accessToken) {",
+                  "    pm.collectionVariables.set('token', json.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "    console.log('token and refreshToken set successfully');",
                   "} else {",
-                  "    console.error('No access_token in response', json);",
+                  "    console.error('Login failed', json);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -88,8 +84,8 @@
                 "value": "application/json"
               },
               {
-                "key": "apikey",
-                "value": "{{supabaseAnonKey}}"
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
               }
             ],
             "body": {
@@ -102,23 +98,116 @@
               }
             },
             "url": {
-              "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password",
+              "raw": "{{baseUrl}}/api/v1/auth/login",
               "host": [
-                "{{supabaseUrl}}"
+                "{{baseUrl}}"
               ],
               "path": [
-                "auth",
+                "api",
                 "v1",
-                "token"
-              ],
-              "query": [
-                {
-                  "key": "grant_type",
-                  "value": "password"
-                }
+                "auth",
+                "login"
               ]
             },
-            "description": "Signs in with the seeded demo user and auto-sets `token` collection variable."
+            "description": "Exchange email + password for tokens. Auto-sets `token` and `refreshToken` collection variables. Response: `{ accessToken, refreshToken, user: { id, email } }`."
+          }
+        },
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) {",
+                  "    pm.collectionVariables.set('token', json.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "    console.log('Tokens rotated successfully');",
+                  "} else {",
+                  "    console.error('Refresh failed', json);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotate both tokens using the stored `refreshToken`. Auto-sets `token` and `refreshToken`. Response: `{ accessToken, refreshToken }`."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-tenant-slug",
+                "value": "{{tenantSlug}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Invalidates all sessions for the authenticated user via Supabase admin API. Requires `Authorization: Bearer {{token}}`. Response: `{ message: \"Logged out\" }`."
           }
         }
       ]
