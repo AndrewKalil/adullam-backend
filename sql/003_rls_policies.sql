@@ -107,9 +107,16 @@ with check (
   and current_user_is_tenant_member(tenant_id)
 );
 
--- Users: allow authenticated role to read emails for log subquery.
--- No RLS on this table — the subquery is scoped by logs.user_id.
+-- Users: readable by any authenticated user for email lookups in the logs join.
+-- RLS enabled; policy allows SELECT for authenticated role with no row restriction
+-- because user records are not tenant-scoped and any member needs to resolve actor emails.
+alter table users enable row level security;
 grant select on users to authenticated;
+
+drop policy if exists users_authenticated_read on users;
+create policy users_authenticated_read on users
+for select
+using (auth.role() = 'authenticated');
 
 -- Logs: SELECT-only for authenticated users. audit_log() is SECURITY DEFINER so it bypasses RLS on INSERT.
 alter table logs enable row level security;
