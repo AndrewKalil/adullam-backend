@@ -111,7 +111,7 @@ with check (
 -- No RLS on this table — the subquery is scoped by logs.user_id.
 grant select on users to authenticated;
 
--- Logs: SELECT-only. Triggers write as table owner (bypass RLS); authenticated users read only.
+-- Logs: SELECT-only for authenticated users. audit_log() is SECURITY DEFINER so it bypasses RLS on INSERT.
 alter table logs enable row level security;
 grant select on logs to authenticated;
 

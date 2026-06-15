@@ -48,7 +48,7 @@ begin
 
   return coalesce(new, old);
 end;
-$$ language plpgsql;
+$$ language plpgsql security definer;
 
 -- Attach to audited tables.
 create or replace trigger trg_categories_audit
