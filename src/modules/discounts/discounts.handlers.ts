@@ -1,4 +1,4 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { NextFunction, Request, Response } from "express";
 
 import { discountProducts, discounts, withTenant } from "~db";
@@ -13,14 +13,30 @@ export const listDiscounts = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const rows = await withTenant(req, (tx) =>
-      tx
+    const result = await withTenant(req, async (tx) => {
+      const rows = await tx
         .select()
         .from(discounts)
         .where(isNull(discounts.deletedAt))
-        .orderBy(discounts.name),
-    );
-    res.json(rows);
+        .orderBy(discounts.name);
+
+      if (rows.length === 0) return [];
+
+      const links = await tx
+        .select({ discountId: discountProducts.discountId, productId: discountProducts.productId })
+        .from(discountProducts)
+        .where(inArray(discountProducts.discountId, rows.map((r) => r.id)));
+
+      const productIdsByDiscountId = links.reduce<Record<string, string[]>>((acc, link) => {
+        if (!acc[link.discountId]) acc[link.discountId] = [];
+        acc[link.discountId].push(link.productId);
+        return acc;
+      }, {});
+
+      return rows.map((row) => ({ ...row, productIds: productIdsByDiscountId[row.id] ?? [] }));
+    });
+
+    res.json(result);
   } catch (err) {
     next(err);
   }
