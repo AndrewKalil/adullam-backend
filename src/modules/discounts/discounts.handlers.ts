@@ -132,6 +132,7 @@ export const updateDiscount = async (
       ...(percentage !== undefined && { percentage: String(percentage) }),
       ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
       ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
+      ...(rest.scope === "products" && { categoryId: null }),
     };
 
     const result = await withTenant(req, async (tx) => {
