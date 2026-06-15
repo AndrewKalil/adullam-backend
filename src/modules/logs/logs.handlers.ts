@@ -38,7 +38,7 @@ export const listLogs = async (
       )`;
 
       const where = and(
-        q.action ? eq(logs.action, q.action as "create" | "update" | "delete") : undefined,
+        q.action ? eq(logs.action, q.action as unknown as "create" | "update" | "delete") : undefined,
         q.entity_type ? eq(logs.entityType, q.entity_type) : undefined,
         q.created_from ? gte(logs.createdAt, new Date(q.created_from)) : undefined,
         q.created_to ? lte(logs.createdAt, new Date(q.created_to)) : undefined,
