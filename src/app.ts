@@ -4,6 +4,7 @@ import {
   authRouter,
   categoriesRouter,
   discountsRouter,
+  logsRouter,
   promoCodesRouter,
   productsRouter,
   uploadsRouter,
@@ -44,6 +45,7 @@ api.use("/products", productsRouter);
 api.use("/discounts", discountsRouter);
 api.use("/promo-codes", promoCodesRouter);
 api.use("/uploads", uploadsRouter);
+api.use("/logs", logsRouter);
 
 // Global error handler — must be registered LAST
 app.use(errorHandler);

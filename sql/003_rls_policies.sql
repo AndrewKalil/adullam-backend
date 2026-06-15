@@ -106,3 +106,21 @@ with check (
   tenant_id = nullif(current_setting('app.current_tenant', true), '')::uuid
   and current_user_is_tenant_member(tenant_id)
 );
+
+-- Users: allow authenticated role to read emails for log subquery.
+-- No RLS on this table — the subquery is scoped by logs.user_id.
+grant select on users to authenticated;
+
+-- Logs: SELECT-only. Triggers write as table owner (bypass RLS); authenticated users read only.
+alter table logs enable row level security;
+grant select on logs to authenticated;
+
+drop policy if exists logs_tenant_isolation on logs;
+create policy logs_tenant_isolation on logs
+for select
+using (
+  tenant_id = nullif(current_setting('app.current_tenant', true), '')::uuid
+  and current_user_is_tenant_member(tenant_id)
+);
+
+create index if not exists idx_logs_tenant_created on logs (tenant_id, created_at desc);
